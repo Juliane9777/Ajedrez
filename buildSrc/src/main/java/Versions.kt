@@ -21,7 +21,7 @@ object Versions {
     val junit5 = "5.8.0"
     val junitExt = "1.1.5"
     val ktor = "2.2.4"
-    val kotlin = "1.9.24"
+    val kotlin = "1.9.22"
     val kotlinxSerializationJson = "1.5.0"
     val kotest = "5.6.1"
     val ktlintPlugin = "11.4.2"

@@ -14,7 +14,8 @@ plugins {
 }
 
 tasks.create("clean", Delete::class) {
-    delete.add(rootProject.buildDir)
+    //delete.add(rootProject.buildDir)
+    delete.add(rootProject.layout.buildDirectory)
 }
 
 allprojects {

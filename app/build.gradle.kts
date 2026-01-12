@@ -81,7 +81,8 @@ android {
         freeCompilerArgs += "-opt-in=kotlin.ExperimentalStdlibApi"
 
         if (project.hasProperty("enableComposeCompilerReports")) {
-            val metricsDir = "${project.buildDir.absolutePath}/compose_metrics"
+            //val metricsDir = "${project.buildDir.absolutePath}/compose_metrics"
+            val metricsDir = "${project.layout.buildDirectory.get().asFile.absolutePath}/compose_metrics"
             freeCompilerArgs += listOf("-P", "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=$metricsDir")
             freeCompilerArgs += listOf("-P", "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=$metricsDir")
         }
