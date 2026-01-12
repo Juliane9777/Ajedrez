@@ -3,7 +3,6 @@ package dev.mcd.chess.ui.theme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.ui.graphics.Color
-import dev.mcd.chess.feature.common.domain.AppColorScheme
 
 sealed interface ComposeAppColorScheme {
 
@@ -88,12 +87,69 @@ sealed interface ComposeAppColorScheme {
                 squareLight = materialColorScheme.tertiary,
             )
     }
+    object Green : ComposeAppColorScheme {
+        override val materialColorScheme: ColorScheme
+            get() = Brown.materialColorScheme.copy(
+                primary = Color(0xFFB4E2C1),
+                onPrimary = Color(0xFF000000),
+                secondaryContainer = Color(0xFF5C8B71),
+                onSecondaryContainer = Color(0xFFCFFFE3),
+                tertiary = Color(0xFFB5D6C0),
+                onTertiary = Color(0xFF26583A),
+                tertiaryContainer = Color(0xFF5C8B71),
+                onTertiaryContainer = Color(0xFFCFFFE3),
+                background = Color(0xFF233D2E),
+                onBackground = Color(0xFFC0E2CE),
+                surface = Color(0xFF233D2E),
+                onSurface = Color(0xFFC0E2CE),
+                surfaceVariant = Color(0xFF395F4A),
+                onSurfaceVariant = Color(0xFFC0E2CE),
+            )
+
+        override val boardColors: BoardColors
+            get() = Brown.boardColors.copy(
+                lastMoveHighlightOnDark = Color(0x4A49D879),
+                lastMoveHighlightOnLight = Color(0x4A49D879),
+                squareDark = materialColorScheme.tertiaryContainer,
+                squareLight = materialColorScheme.tertiary,
+            )
+    }
+
+    object Gray : ComposeAppColorScheme {
+        override val materialColorScheme: ColorScheme
+            get() = Brown.materialColorScheme.copy(
+                primary = Color(0xFFDADFE2),
+                onPrimary = Color(0xFF000000),
+                secondaryContainer = Color(0xFF6C737A),
+                onSecondaryContainer = Color(0xFFE5EBF2),
+                tertiary = Color(0xFFC6CCD2),
+                onTertiary = Color(0xFF3A4047),
+                tertiaryContainer = Color(0xFF6C737A),
+                onTertiaryContainer = Color(0xFFE5EBF2),
+                background = Color(0xFF2B2F33),
+                onBackground = Color(0xFFD7DDE3),
+                surface = Color(0xFF2B2F33),
+                onSurface = Color(0xFFD7DDE3),
+                surfaceVariant = Color(0xFF444A50),
+                onSurfaceVariant = Color(0xFFD7DDE3),
+            )
+
+        override val boardColors: BoardColors
+            get() = Brown.boardColors.copy(
+                lastMoveHighlightOnDark = Color(0x4AB0B7BF),
+                lastMoveHighlightOnLight = Color(0x4AB0B7BF),
+                squareDark = materialColorScheme.tertiaryContainer,
+                squareLight = materialColorScheme.tertiary,
+            )
+    }
 
     companion object {
         fun fromAppColorScheme(appColorScheme: AppColorScheme): ComposeAppColorScheme {
             return when (appColorScheme) {
                 AppColorScheme.Blue -> Blue
                 AppColorScheme.Brown -> Brown
+                AppColorScheme.Green -> Green
+                AppColorScheme.Gray -> Gray
             }
         }
     }

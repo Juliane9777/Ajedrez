@@ -3,20 +3,25 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.kapt")
+    id("org.jetbrains.kotlin.plugin.serialization")
     id("com.google.dagger.hilt.android")
-    id("kotlin-kapt")
-    id("kotlinx-serialization")
-    id("androidx.baselineprofile")
+    //id("androidx.baselineprofile")
 }
 
 android {
-    compileSdk = BuildSettings.compileSdk
+    //compileSdk = BuildSettings.compileSdk
+    compileSdk = 35 // o 35 si lo tienes instalado
+
 
     defaultConfig {
+        //targetSdk = 35 // opcional, pero recomendable alinearlo
         namespace = "dev.mcd.chess"
         applicationId = "dev.mcd.chess"
         minSdk = BuildSettings.minSdk
-        targetSdk = BuildSettings.targetSdk
+        //targetSdk = 35
+
+        //targetSdk = BuildSettings.targetSdk
         versionCode = 1
         versionName = "1.0"
 
@@ -54,9 +59,16 @@ android {
             signingConfig = release.signingConfig
         }
     }
+        compileOptions {
+            sourceCompatibility = JavaVersion.VERSION_17
+            targetCompatibility = JavaVersion.VERSION_17
+        }
+
 
     kotlin {
-        jvmToolchain(BuildSettings.jdkVersion)
+        //jvmToolchain(BuildSettings.jdkVersion)
+        jvmToolchain(17)
+
     }
 
     kotlinOptions {
@@ -78,7 +90,8 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = Versions.composeCompiler
+        //kotlinCompilerExtensionVersion = Versions.composeCompiler
+        kotlinCompilerExtensionVersion = "1.5.14"
         useLiveLiterals = false
     }
 }
@@ -98,7 +111,7 @@ dependencies {
         implementation(project(":engine-lc0"))
         implementation(project(":common"))
         implementation(project(":online"))
-        "baselineProfile"(project(mapOf("path" to ":baselineprofile")))
+        //"baselineProfile"(project(mapOf("path" to ":baselineprofile")))
 
         // Core
         implementation("org.slf4j:slf4j-nop:$slf4j")
@@ -108,16 +121,19 @@ dependencies {
         implementation("androidx.profileinstaller:profileinstaller:$androidProfileInstaller")
 
         // Compose
-        implementation(platform("androidx.compose:compose-bom:$compose"))
-        androidTestImplementation(platform("androidx.compose:compose-bom:$compose"))
+        implementation(platform("androidx.compose:compose-bom:2024.06.00"))
+        androidTestImplementation(platform("androidx.compose:compose-bom:2024.06.00"))
+
         implementation("androidx.compose.ui:ui")
         implementation("androidx.compose.foundation:foundation")
         implementation("androidx.compose.material3:material3")
         implementation("androidx.compose.material:material-icons-extended")
-        debugImplementation("androidx.compose.ui:ui-tooling")
         implementation("androidx.compose.ui:ui-tooling-preview")
+
+        debugImplementation("androidx.compose.ui:ui-tooling")
         androidTestImplementation("androidx.compose.ui:ui-test-junit4")
         debugImplementation("androidx.compose.ui:ui-test-manifest")
+
 
         // Orbit
         implementation("org.orbit-mvi:orbit-core:$orbit")

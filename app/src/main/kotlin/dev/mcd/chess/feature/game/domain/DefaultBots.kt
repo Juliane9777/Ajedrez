@@ -8,27 +8,27 @@ object DefaultBots {
     fun bots() = listOf(
         Bot(
             slug = MaiaWeights.ELO_1100.name,
-            name = "Pawn Pioneer",
+            name = "Novato (1100)",
             image = PlayerImage.Bot,
         ),
         Bot(
             slug = MaiaWeights.ELO_1200.name,
-            name = "The Bishop of Banterbury",
+            name = "Principiante (1300)",
             image = PlayerImage.Bot,
         ),
         Bot(
             slug = MaiaWeights.ELO_1300.name,
-            name = "Knight Rider",
+            name = "Intermedio (1300)",
             image = PlayerImage.Bot,
         ),
         Bot(
             slug = MaiaWeights.ELO_1400.name,
-            name = "Rook Rampage",
+            name = "Avanzado (1400)",
             image = PlayerImage.Bot,
         ),
         Bot(
             slug = MaiaWeights.ELO_1900.name,
-            name = "Checkmate Chad",
+            name = "Maestro (1900)",
             image = PlayerImage.Bot,
         ),
     )

@@ -14,14 +14,33 @@ import org.orbitmvi.orbit.syntax.simple.repeatOnSubscription
 import org.orbitmvi.orbit.viewmodel.container
 import timber.log.Timber
 import javax.inject.Inject
+import androidx.lifecycle.viewModelScope
+import dev.mcd.chess.feature.auth.domain.LocalAuthRepository
+import dev.mcd.chess.feature.auth.domain.UserRole
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @HiltViewModel
 class ChooseModeViewModel @Inject constructor(
     private val getGameForUser: GetGameForUser,
     private val getLobbyInfo: GetLobbyInfo,
+    private val authRepository: LocalAuthRepository,
 ) : ViewModel(), ContainerHost<ChooseModeViewModel.State, ChooseModeViewModel.SideEffect> {
 
     override val container = container<State, SideEffect>(State()) {
+        viewModelScope.launch {
+            authRepository.sessionUpdates().collectLatest { session ->
+                intent {
+                    reduce {
+                        state.copy(
+                            username = session?.username,
+                            isAdmin = session?.role == UserRole.Admin,
+                        )
+                    }
+                }
+            }
+        }
         intent {
             repeatOnSubscription {
                 runCatching {
@@ -46,8 +65,11 @@ class ChooseModeViewModel @Inject constructor(
         }
     }
 
-    data class State(val inLobby: Int? = null)
-
+    data class State(
+        val inLobby: Int? = null,
+        val username: String? = null,
+        val isAdmin: Boolean = false,
+    )
     sealed interface SideEffect {
         data class NavigateToExistingGame(val id: GameId) : SideEffect
     }

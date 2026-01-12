@@ -1,5 +1,5 @@
 package dev.mcd.chess.ui.screen.botgame
-
+/*
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -40,6 +40,11 @@ import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import dev.mcd.chess.feature.auth.domain.LocalAuthRepository
+import dev.mcd.chess.feature.history.domain.GameRecord
+import dev.mcd.chess.feature.history.domain.GameRecordMode
+import dev.mcd.chess.feature.history.domain.GameRecordRepository
+import java.util.UUID
 
 @HiltViewModel
 class BotGameViewModel @Inject constructor(
@@ -51,10 +56,13 @@ class BotGameViewModel @Inject constructor(
     private val soundWrapper: GameSessionSoundWrapper,
     private val appPreferences: AppPreferences,
     private val copyPGN: CopySessionPGNToClipboard,
+    private val gameRecordRepository: GameRecordRepository,
+    private val authRepository: LocalAuthRepository,
 ) : ViewModel(), ContainerHost<BotGameViewModel.State, BotGameViewModel.SideEffect> {
 
     private lateinit var bot: Bot
     private lateinit var side: Side
+    private val recordedSessions = mutableSetOf<String>()
 
     override val container = container<State, SideEffect>(State.Loading) {
         intent {
@@ -78,8 +86,7 @@ class BotGameViewModel @Inject constructor(
                         }
                     }
                     intent {
-                        handleTermination(game.awaitTermination())
-                    }
+                        handleTermination(game, game.awaitTermination())                    }
                     intent {
                         val soundSettings = SoundSettings(
                             enableNotify = true,
@@ -158,6 +165,42 @@ class BotGameViewModel @Inject constructor(
             )
         }
     }
+    private fun handleTermination(session: GameSession, reason: TerminationReason) {
+        intent {
+            recordGame(session, reason, GameRecordMode.Bot)
+        }
+        handleTermination(reason)
+    }
+
+    private suspend fun recordGame(
+        session: GameSession,
+        reason: TerminationReason,
+        mode: GameRecordMode,
+    ) {
+        val recordId = session.id.takeIf { it.isNotBlank() } ?: UUID.randomUUID().toString()
+        if (!recordedSessions.add(recordId)) {
+            return
+        }
+        val username = authRepository.session()?.username ?: "guest"
+        val record = GameRecord(
+            id = recordId,
+            username = username,
+            mode = mode,
+            moves = session.history().map { it.move.toString() },
+            result = reason.toSummary(),
+            createdAt = System.currentTimeMillis(),
+        )
+        gameRecordRepository.addRecord(record)
+    }
+
+    private fun TerminationReason.toSummary(): String {
+        return when {
+            draw -> "Draw"
+            resignation != null -> "Resignation"
+            sideMated != null -> "Checkmate"
+            else -> "Finished"
+        }
+    }
 
     private suspend fun confirmResignation(): Boolean {
         return suspendCoroutine { continuation ->
@@ -198,3 +241,4 @@ class BotGameViewModel @Inject constructor(
         object NavigateBack : SideEffect
     }
 }
+*/

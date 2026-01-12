@@ -1,6 +1,5 @@
 package dev.mcd.chess.feature.puzzle.data.usecase
 
-import dev.mcd.chess.feature.common.domain.AppPreferences
 import dev.mcd.chess.feature.puzzle.maxPuzzleRatingRange
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.StringSpec

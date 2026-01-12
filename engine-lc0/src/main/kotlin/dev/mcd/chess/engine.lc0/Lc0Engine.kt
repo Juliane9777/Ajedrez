@@ -19,6 +19,9 @@ import java.io.File
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
+import kotlinx.coroutines.Dispatchers
+import java.util.zip.GZIPInputStream
+
 
 internal class Lc0Engine @Inject constructor(
     private val bridge: Lc0Jni,
@@ -31,20 +34,68 @@ internal class Lc0Engine @Inject constructor(
     private lateinit var weightsFile: File
 
     override fun init(params: MaiaWeights) {
-        val weightFileName = if (params.asset.contains('/')) {
-            params.asset.substring(params.asset.indexOf('/') + 1)
-        } else {
-            params.asset
-        }
-        weightsFile = File(context.dataDir, weightFileName)
+        val assetPbPath = params.asset
+        Timber.tag("Lc0").d("Requested weights asset: $assetPbPath")
 
-        if (!weightsFile.exists()) {
-            context.assets.open(params.asset).copyTo(
-                weightsFile.outputStream(),
-            )
+        val outName = assetPbPath.substringAfterLast('/').removeSuffix(".gz")
+        val outFileName = if (outName.endsWith(".pb")) outName else "$outName.pb"
+
+        val outDir = File(context.filesDir, "weights")
+        weightsFile = File(outDir, outFileName)
+
+        Timber.tag("Lc0").d("Weights output file: ${weightsFile.absolutePath}")
+
+        if (!weightsFile.exists() || weightsFile.length() == 0L) {
+            outDir.mkdirs()
+
+            val pbExists = assetExists(assetPbPath)
+            val gzPath = if (assetPbPath.endsWith(".gz")) assetPbPath else "$assetPbPath.gz"
+            val gzExists = assetExists(gzPath)
+
+            Timber.tag("Lc0").d("Asset exists? pb=$pbExists gz=$gzExists (gzPath=$gzPath)")
+
+            try {
+                if (pbExists) {
+                    context.assets.open(assetPbPath).use { input ->
+                        weightsFile.outputStream().use { output -> input.copyTo(output) }
+                    }
+                } else {
+                    context.assets.open(gzPath).use { raw ->
+                        GZIPInputStream(raw).use { gzIn ->
+                            weightsFile.outputStream().use { output -> gzIn.copyTo(output) }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Timber.tag("Lc0").e(e, "Failed copying weights from assets")
+                throw e
+            }
+
+            Timber.tag("Lc0").d("Weights copied. exists=${weightsFile.exists()} size=${weightsFile.length()}")
+        } else {
+            Timber.tag("Lc0").d("Weights already present. size=${weightsFile.length()}")
         }
+
         bridge.init()
     }
+    private fun dumpWeightsAssets() {
+        try {
+            val list = context.assets.list("weights")?.toList().orEmpty()
+            Timber.tag("Lc0").d("Assets/weights contains: $list")
+        } catch (e: Exception) {
+            Timber.tag("Lc0").e(e, "Failed listing assets/weights")
+        }
+    }
+
+
+    private fun assetExists(path: String): Boolean =
+        try {
+            context.assets.open(path).close()
+            true
+        } catch (_: Exception) {
+            false
+        }
+
 
     override suspend fun awaitReady() {
         awaitState<State.Ready>()

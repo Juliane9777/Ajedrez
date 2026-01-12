@@ -6,6 +6,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dev.mcd.chess.online.data.ChessApiImpl
+import dev.mcd.chess.online.data.OfflineGetRandomPuzzle
 import dev.mcd.chess.online.data.usecase.FindGameImpl
 import dev.mcd.chess.online.data.usecase.GetGameForUserImpl
 import dev.mcd.chess.online.data.usecase.GetLobbyInfoImpl
@@ -51,8 +52,9 @@ abstract class OnlineModule {
     internal abstract fun getLobbyInfo(impl: GetLobbyInfoImpl): GetLobbyInfo
 
     @Binds
-    internal abstract fun getRandomPuzzle(impl: GetRandomPuzzleImpl): GetRandomPuzzle
-
+    internal abstract fun getRandomPuzzle(impl: OfflineGetRandomPuzzle): GetRandomPuzzle
+    @Module
+    @InstallIn(SingletonComponent::class)
     companion object {
         @Provides
         @Singleton

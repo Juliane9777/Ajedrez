@@ -16,7 +16,7 @@ android {
 
         ndk {
             abiFilters.clear()
-            abiFilters += "arm64-v8a"
+            abiFilters += listOf("arm64-v8a")
         }
     }
 

@@ -2,8 +2,6 @@ package dev.mcd.chess.ui.theme.preferencestheme
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.mcd.chess.feature.common.domain.AppColorScheme
-import dev.mcd.chess.feature.common.domain.AppPreferences
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import org.orbitmvi.orbit.ContainerHost

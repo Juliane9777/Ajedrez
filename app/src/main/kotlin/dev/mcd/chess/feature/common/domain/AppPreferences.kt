@@ -16,6 +16,15 @@ interface AppPreferences : AuthStore {
     suspend fun soundsEnabled(): Boolean
     suspend fun puzzleRatingRange(): IntRange
     suspend fun setPuzzleRatingRange(range: IntRange)
+    suspend fun authUsers(): String?
+    suspend fun authUsersUpdates(): Flow<String?>
+    suspend fun setAuthUsers(value: String)
+    suspend fun currentUser(): String?
+    suspend fun currentUserUpdates(): Flow<String?>
+    suspend fun setCurrentUser(username: String?)
+    suspend fun gameRecords(): String?
+    suspend fun gameRecordsUpdates(): Flow<String?>
+    suspend fun setGameRecords(value: String)
     suspend fun clear()
 
     override suspend fun storeToken(token: String?)

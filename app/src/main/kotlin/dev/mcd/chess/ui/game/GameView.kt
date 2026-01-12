@@ -31,10 +31,14 @@ fun GameView(
     onResign: () -> Unit = {},
     boardWidth: @Composable () -> Float = { LocalView.current.width.toFloat() },
     settings: GameSettings = GameSettings(),
+    allowBothSidesToMove: Boolean = true // <-- nuevo
+
 ) {
     val (game) = gameHolder
     val sessionManager = LocalGameSession.current
-    val boardInteraction = remember(game.id) { BoardInteraction(game) }
+    val boardInteraction = remember(game.id, allowBothSidesToMove) {
+        BoardInteraction(game, allowBothSidesToMove)
+    }
 
     LaunchedEffect(game) {
         Timber.d("Game ID: ${game.id}")

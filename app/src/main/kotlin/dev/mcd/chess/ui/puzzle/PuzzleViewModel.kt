@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.github.bhlangonijr.chesslib.move.Move
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.mcd.chess.common.game.GameSession
-import dev.mcd.chess.feature.common.domain.AppPreferences
 import dev.mcd.chess.feature.puzzle.domain.usecase.CreatePuzzleSession
 import dev.mcd.chess.feature.puzzle.domain.usecase.CreatePuzzleSession.PuzzleInput
 import dev.mcd.chess.feature.puzzle.domain.usecase.CreatePuzzleSession.PuzzleOutput
@@ -25,6 +24,11 @@ import org.orbitmvi.orbit.syntax.simple.reduce
 import org.orbitmvi.orbit.viewmodel.container
 import timber.log.Timber
 import javax.inject.Inject
+import dev.mcd.chess.feature.auth.domain.LocalAuthRepository
+import dev.mcd.chess.feature.history.domain.GameRecord
+import dev.mcd.chess.feature.history.domain.GameRecordMode
+import dev.mcd.chess.feature.history.domain.GameRecordRepository
+import java.util.UUID
 
 @HiltViewModel
 class PuzzleViewModel @Inject constructor(
@@ -33,9 +37,12 @@ class PuzzleViewModel @Inject constructor(
     private val soundWrapper: GameSessionSoundWrapper,
     private val appPreferences: AppPreferences,
     private val getPuzzleOptions: GetPuzzleOptions,
+    private val gameRecordRepository: GameRecordRepository,
+    private val authRepository: LocalAuthRepository,
 ) : ViewModel(), ContainerHost<PuzzleViewModel.State, PuzzleViewModel.SideEffect> {
 
     private var puzzleInput: PuzzleInput? = null
+    private val recordedPuzzleSessions = mutableSetOf<String>()
 
     override val container = container<State, SideEffect>(State()) {
         intent {
@@ -141,8 +148,8 @@ class PuzzleViewModel @Inject constructor(
         intent {
             when (output) {
                 is PuzzleOutput.Session -> handleNewSession(output.session)
-                is PuzzleOutput.Completed -> reduce { state.copy(completed = true) }
-                is PuzzleOutput.Failed -> reduce { state.copy(failed = true, completed = false) }
+                is PuzzleOutput.Completed -> handlePuzzleCompletion(success = true)
+                is PuzzleOutput.Failed -> handlePuzzleCompletion(success = false)
                 is PuzzleOutput.NoMovesLeft -> handlePuzzleOutputError(output)
                 is PuzzleOutput.NotUserTurn -> handlePuzzleOutputError(output)
                 is PuzzleOutput.ErrorMoveInvalid -> handlePuzzleOutputError(output)
@@ -164,6 +171,37 @@ class PuzzleViewModel @Inject constructor(
             )
             soundWrapper.attachSession(session, soundSettings)
         }
+    }
+
+    private fun handlePuzzleCompletion(success: Boolean) {
+        intent {
+            reduce {
+                state.copy(
+                    completed = success,
+                    failed = !success,
+                )
+            }
+            state.session?.let { session ->
+                recordPuzzle(session, success)
+            }
+        }
+    }
+
+    private suspend fun recordPuzzle(session: GameSession, success: Boolean) {
+        val recordId = session.id.takeIf { it.isNotBlank() } ?: UUID.randomUUID().toString()
+        if (!recordedPuzzleSessions.add(recordId)) {
+            return
+        }
+        val username = authRepository.session()?.username ?: "guest"
+        val record = GameRecord(
+            id = recordId,
+            username = username,
+            mode = GameRecordMode.Puzzle,
+            moves = session.history().map { it.move.toString() },
+            result = if (success) "Completed" else "Failed",
+            createdAt = System.currentTimeMillis(),
+        )
+        gameRecordRepository.addRecord(record)
     }
 
     data class State(

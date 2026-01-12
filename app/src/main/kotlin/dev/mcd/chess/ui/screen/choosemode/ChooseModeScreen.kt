@@ -36,6 +36,7 @@ import dev.mcd.chess.common.game.GameId
 import dev.mcd.chess.ui.screen.choosemode.ChooseModeViewModel.SideEffect.NavigateToExistingGame
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
+import androidx.compose.material.icons.rounded.AdminPanelSettings
 
 @Composable
 fun ChooseModeScreen(
@@ -44,6 +45,7 @@ fun ChooseModeScreen(
     onSolvePuzzle: () -> Unit,
     onNavigateSettings: () -> Unit,
     onNavigateExistingGame: (GameId) -> Unit,
+    onNavigateAdmin: () -> Unit,
     viewModel: ChooseModeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.collectAsState()
@@ -88,6 +90,10 @@ fun ChooseModeScreen(
                 PlayComputerButton(onClick = onPlayBot)
                 Spacer(modifier = Modifier.height(24.dp))
                 SolvePuzzleButton(onClick = onSolvePuzzle)
+                if (state.isAdmin) {
+                    Spacer(modifier = Modifier.height(24.dp))
+                    AdminButton(onClick = onNavigateAdmin)
+                }
             }
         }
     }
@@ -188,6 +194,33 @@ private fun PlayOnlineButton(
                     )
                 }
             }
+        }
+    }
+}
+@Composable
+private fun AdminButton(
+    onClick: () -> Unit,
+) {
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onClick() }
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                modifier = Modifier.size(42.dp),
+                painter = rememberVectorPainter(image = Icons.Rounded.AdminPanelSettings),
+                contentDescription = stringResource(R.string.admin_title),
+            )
+            Spacer(modifier = Modifier.width(24.dp))
+            Text(
+                text = stringResource(R.string.admin_title),
+                style = MaterialTheme.typography.titleMedium,
+            )
         }
     }
 }

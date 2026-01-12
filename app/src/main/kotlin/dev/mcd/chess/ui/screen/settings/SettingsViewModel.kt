@@ -4,8 +4,6 @@ import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.mcd.chess.BuildConfig
-import dev.mcd.chess.feature.common.domain.AppColorScheme
-import dev.mcd.chess.feature.common.domain.AppPreferences
 import dev.mcd.chess.feature.common.domain.Environment
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.syntax.simple.intent

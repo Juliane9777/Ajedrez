@@ -17,6 +17,8 @@ import kotlin.math.sqrt
 
 class BoardInteraction(
     private val session: GameSession,
+    private val allowBothSidesToMove: Boolean = false,
+
 ) {
     private val perspective = MutableStateFlow(session.selfSide)
     private val moves = MutableSharedFlow<Move>(replay = 1, extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
@@ -27,6 +29,7 @@ class BoardInteraction(
     private var enableInteraction = true
     private val selectPromotion = MutableStateFlow(emptyList<Move>())
     private var promotionCompletable: CompletableDeferred<Move?>? = null
+    //private val allowBothSidesToMove: Boolean = false
 
     fun updateSquarePositions(squareSizePx: Float) {
         this.squareSizePx = squareSizePx
@@ -98,37 +101,41 @@ class BoardInteraction(
     }
 
     fun dropPiece(piece: Piece, square: Square): DropPieceResult {
-        if (enableInteraction) {
-            if (target.value == Square.NONE) return DropPieceResult.None
-
-            var result: DropPieceResult = DropPieceResult.None
-
-            if (session.selfSide == piece.pieceSide) {
-                val move = Move(square, target.value)
-                val promotions = session.promotions(move)
-
-                if (move in session.legalMoves()) {
-                    moves.tryEmit(move)
-                    result = DropPieceResult.Moved(square, target.value)
-                    clearHighlightMoves()
-                    releaseTarget()
-                } else if (promotions.isNotEmpty()) {
-                    result = DropPieceResult.SelectPromotion(promotions)
-                    clearHighlightMoves()
-                } else {
-                    releaseTarget()
-                    clearHighlightMoves()
-                }
-            } else {
-                releaseTarget()
-            }
-            return result
-        } else {
+        if (!enableInteraction) {
             clearHighlightMoves()
             releaseTarget()
             return DropPieceResult.None
         }
+
+        if (target.value == Square.NONE) return DropPieceResult.None
+
+        var result: DropPieceResult = DropPieceResult.None
+
+        val allowedSide = if (allowBothSidesToMove) session.board().sideToMove else session.selfSide
+
+        if (allowedSide == piece.pieceSide) {
+            val move = Move(square, target.value)
+            val promotions = session.promotions(move)
+
+            if (move in session.legalMoves()) {
+                moves.tryEmit(move)
+                result = DropPieceResult.Moved(square, target.value)
+                clearHighlightMoves()
+                releaseTarget()
+            } else if (promotions.isNotEmpty()) {
+                result = DropPieceResult.SelectPromotion(promotions)
+                clearHighlightMoves()
+            } else {
+                releaseTarget()
+                clearHighlightMoves()
+            }
+        } else {
+            releaseTarget()
+        }
+
+        return result
     }
+
 
     fun moves(): Flow<Move> {
         return moves.filter { it.to != Square.NONE && it.from != Square.NONE }

@@ -19,7 +19,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.github.bhlangonijr.chesslib.Side
 import dev.mcd.chess.R
-import dev.mcd.chess.feature.common.domain.AppColorScheme
 import dev.mcd.chess.ui.extension.toPx
 import dev.mcd.chess.ui.game.board.chessboard.Squares
 import dev.mcd.chess.ui.game.board.chessboard.rememberBoardLayout
