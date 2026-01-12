@@ -8,7 +8,11 @@ plugins {
     id("com.google.dagger.hilt.android")
     //id("androidx.baselineprofile")
 }
+kotlin {
+    //jvmToolchain(BuildSettings.jdkVersion)
+    jvmToolchain(17)
 
+}
 android {
     //compileSdk = BuildSettings.compileSdk
     compileSdk = 35 // o 35 si lo tienes instalado
@@ -64,13 +68,6 @@ android {
             targetCompatibility = JavaVersion.VERSION_17
         }
 
-
-    kotlin {
-        //jvmToolchain(BuildSettings.jdkVersion)
-        jvmToolchain(17)
-
-    }
-
     kotlinOptions {
         freeCompilerArgs += "-Xcontext-receivers"
         //freeCompilerArgs += "-Xopt-in=androidx.compose.material3.ExperimentalMaterial3Api"
@@ -94,8 +91,8 @@ android {
     }
 
     composeOptions {
-        //kotlinCompilerExtensionVersion = Versions.composeCompiler
-        kotlinCompilerExtensionVersion = "1.5.14"
+        kotlinCompilerExtensionVersion = Versions.composeCompiler
+        //kotlinCompilerExtensionVersion = "1.5.14"
         useLiveLiterals = false
     }
 }
@@ -109,6 +106,13 @@ kapt {
 }
 
 dependencies {
+
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.9.24"))
+    //kapt(platform("org.jetbrains.kotlin:kotlin-bom:1.9.24"))
+    //testImplementation(platform("org.jetbrains.kotlin:kotlin-bom:1.9.24"))
+    //androidTestImplementation(platform("org.jetbrains.kotlin:kotlin-bom:1.9.24"))
+    //implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.9.24"))
+
     with(Versions) {
         // Projects
         implementation(project(":engine-stockfish"))
